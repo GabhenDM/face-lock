@@ -29,6 +29,11 @@ face_encodings = []
 face_names = []
 
 
+def main():
+    sleep(2)
+    reconhecimento()
+
+
 def salvar_snapshot(frame):
     img_name = "./snapshots/snapshot_{}.png".format(datetime.datetime.now())
     cv2.imwrite(img_name, frame)
@@ -85,10 +90,7 @@ def reconhecimento():
     #    return
 
 
-# Espera camera inicializar
-sleep(2)
-# Chamada para Tirar Foto e Realizar Reconhecimento
-reconhecimento()
+main()
 #   r = requests.get(url = URL_CONTROLLER, params = {'command': "off"})
 #   time.sleep(5)
 video_capture.release()
