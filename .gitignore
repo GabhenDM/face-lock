@@ -7,3 +7,7 @@ bin
 include
 lib
 .Python
+snapshots/*
+training_images/*
+encoded_files/*
+.DS_Store
