@@ -11,3 +11,4 @@ snapshots/*.png
 training_images/*.jpg
 encoded_files/dataset_faces.dat
 .DS_Store
+venv
