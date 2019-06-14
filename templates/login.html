@@ -19,15 +19,9 @@
     />
   </head>
   <body>
-    <form class="form-signin">
+    <form class="form-signin" method="POST">
+      {{ form.hidden_tag()}}
       <div class="text-center mb-4">
-        <img
-          class="mb-4"
-          src="/docs/4.3/assets/brand/bootstrap-solid.svg"
-          alt=""
-          width="72"
-          height="72"
-        />
         <h1 class="h3 mb-3 font-weight-normal">SmartFace Lock</h1>
         <p>
           Area Restrita
@@ -35,31 +29,16 @@
       </div>
 
       <div class="form-label-group">
-        <input
-          type="email"
-          id="inputEmail"
-          class="form-control"
-          placeholder="Email"
-          required
-          autofocus
-        />
-        <label for="inputEmail">Email</label>
+        {{form.email(class_="form-control")}}
+        {{form.email.label}}
       </div>
 
       <div class="form-label-group">
-        <input
-          type="password"
-          id="inputPassword"
-          class="form-control"
-          placeholder="Senha"
-          required
-        />
-        <label for="inputPassword">Senha</label>
+        {{form.password(class_="form-control")}}
+        {{form.password.label}}
       </div>
 
-      <button class="btn btn-lg btn-primary btn-block" type="submit">
-        Login
-      </button>
+      {{form.submit(class="btn btn-lg btn-primary btn-block")}}
       <p class="mt-5 mb-3 text-muted text-center">&copy; 2017-2019</p>
     </form>
   </body>
