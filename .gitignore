@@ -7,7 +7,7 @@ bin
 include
 lib
 .Python
-snapshots/*
-training_images/*
-encoded_files/*
+snapshots/*.png
+training_images/*.jpg
+encoded_files/dataset_faces.dat
 .DS_Store
