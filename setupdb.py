@@ -1,4 +1,5 @@
 from server import db,Usuario
+import bcrypt
 
 db.create_all()
 
@@ -9,6 +10,10 @@ test = Usuario('Teste', 'teste@test.com', '123456')
 
 #db.session.commit()
 
-all_users = Usuario.query.all()
+gabriel = Usuario.query.get(2)
+senha = u"scp1234"
+gabriel.senha = bcrypt.hashpw(senha.encode('utf8'), bcrypt.gensalt())
 
-print(all_users)
+db.session.add(gabriel)
+
+db.session.commit()
