@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <form class="form-signin" method="POST">
+      {{ form.hidden_tag()}}
+      <div class="text-center mb-4">
+        <h1 class="h3 mb-3 font-weight-normal">SmartFace Lock</h1>
+        <p>
+          Area Restrita
+        </p>
+      </div>
+
+      <div class="form-label-group">
+        {{form.email(class_="form-control")}}
+        {{form.email.label}}
+      </div>
+
+      <div class="form-label-group">
+        {{form.password(class_="form-control")}}
+        {{form.password.label}}
+      </div>
+
+      {{form.submit(class="btn btn-lg btn-primary btn-block")}}
+      <p class="mt-5 mb-3 text-muted text-center">&copy; Grupo de Segurança Cibernética e Privacidade - LNCC - 2019</p>
+    </form>
+ 
+{% endblock %}
