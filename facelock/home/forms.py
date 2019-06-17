@@ -5,5 +5,21 @@ class RegisterForm(FlaskForm):
     nome = StringField('Nome', validators=[validators.DataRequired()])
     email = StringField("Email", validators=[
                         validators.DataRequired(), validators.Email()])
-    is_admin = BooleanField('Administrador', validators=[validators.DataRequired()])
+    password = PasswordField('Senha', [
+        validators.DataRequired(),
+        validators.EqualTo('confirm', message='Senhas devem ser iguais')
+    ])
+    confirm = PasswordField('Repita a Senha')
+    is_admin = BooleanField('Administrador')
+    active = BooleanField('Acesso Ativo?')
+    submit = SubmitField('Registrar')
+
+
+class EditForm(FlaskForm):
+    nome = StringField('Nome', validators=[validators.DataRequired()])
+    email = StringField("Email", validators=[
+                        validators.DataRequired(), validators.Email()])
+    is_admin = BooleanField('Administrador')
+    active = BooleanField("Acesso Ativo?")
     submit = SubmitField('Editar')
+
