@@ -4,6 +4,11 @@ import numpy as np
 import time
 import requests
 import pickle
+import serial 
+import threading
+arduino = serial.Serial('/dev/ttyACM0', 9600)
+
+
 
 URL_CONTROLLER = "http://127.0.0.1:5000/"
 
@@ -24,6 +29,19 @@ face_locations = []
 face_encodings = []
 face_names = []
 
+def onOffFunction(command):
+	if command =="on":
+		print("Abrindo a Porta...")
+		time.sleep(1) 
+		arduino.write(b'H') 
+	elif command =="off":
+		print("Fechando a Porta...")
+		time.sleep(1) 
+		arduino.write(b'L')
+	elif command =="bye":
+		print("Adeus!...")
+		time.sleep(1) 
+		arduino.close()
 
 while True:
     process_this_frame = True
@@ -55,6 +73,8 @@ while True:
             best_match_index = np.argmin(face_distances)
             if matches[best_match_index]:
                 name = known_face_names[best_match_index]
+                x = threading.Thread(target=onOffFunction,args=('on',))
+                x.start()
                 # TODO get request para API controller
                 # r = requests.get(url = URL_CONTROLLER, params = {'command': "on"})
                 # if(r.status_code == 200):

@@ -4,8 +4,13 @@ import numpy as np
 import time
 import requests
 import pickle
+import os
 import datetime
 from time import sleep
+import serial 
+import threading
+arduino = serial.Serial('/dev/ttyACM0', 9600)
+
 
 
 URL_CONTROLLER = "http://127.0.0.1:5000/controller"
@@ -16,7 +21,8 @@ video_capture = cv2.VideoCapture(0)
 
 all_face_encodings = {}
 # Load face encodings
-with open('./encoded_files/dataset_faces.dat', 'rb') as f:
+
+with open(os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..','encoded_files','dataset_faces.dat')), 'rb') as f:
     all_face_encodings = pickle.load(f)
 
 # Grab the list of names and the list of encodings
@@ -39,6 +45,21 @@ def salvar_snapshot(frame):
     cv2.imwrite(img_name, frame)
     print("{} written!".format(img_name))
 
+
+
+def onOffFunction(command):
+	if command =="on":
+		print("Abrindo a Porta...")
+		time.sleep(1) 
+		arduino.write(b'H') 
+	elif command =="off":
+		print("Fechando a Porta...")
+		time.sleep(1) 
+		arduino.write(b'L')
+	elif command =="bye":
+		print("Adeus!...")
+		time.sleep(1) 
+		arduino.close()
 
 # Funcao Reconhecimento Facial
 def reconhecimento():
@@ -65,8 +86,10 @@ def reconhecimento():
         if matches[best_match_index]:
             name = known_face_names[best_match_index]
             print("[+] Rosto Reconhecido ! - " + name)
+            x = threading.Thread(target=onOffFunction,args=('on',))
+            x.start()
             #r = requests.get(url = URL_CONTROLLER, params = {'command': "on"})
-            # if(r.status_code == 200):
+            #if(r.status_code == 200):
             #    return
         face_names.append(name)
 

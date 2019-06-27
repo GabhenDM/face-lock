@@ -3,7 +3,7 @@
 {% block content %}
 
 
-<form class="form-signin" method="POST">
+<form class="form-signin" method="POST" enctype="multipart/form-data">
         <h1>Adicionar Usuário</h1>
     {{ form.hidden_tag()}}
     <div class="form-label-group">
@@ -28,9 +28,13 @@
         {{form.is_admin.label}}
     </div>
     <div class="form-label-group">
-      {{form.active(class_="form-control")}}
-      {{form.active.label}}
-  </div>
+      {{form.ativo(class_="form-control")}}
+      {{form.ativo.label}}
+    </div>
+    <div class="form-label-group">
+      {{form.photo(class_="form-control-file-sm")}}
+      {{form.photo.label}}
+    </div>
 
     {{form.submit(class="btn btn-lg btn-primary btn-block")}}
 </form>

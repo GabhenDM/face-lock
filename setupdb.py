@@ -4,11 +4,12 @@ import bcrypt
 db.create_all()
 
 senha = u"scp1234"
-gabriel = Usuario('Gabriel', 'henriques.gabriel@outlook.com',  bcrypt.hashpw(senha.encode('utf8'), bcrypt.gensalt()), True, True)
-test = Usuario('Teste', 'teste@test.com',  bcrypt.hashpw(senha.encode('utf8'), bcrypt.gensalt()), False, False)
+#salt = u"'Tesla470Tmnbsibifasng'"
+gabriel = Usuario('Gabriel', 'henriques.gabriel@outlook.com',  bcrypt.hashpw(senha.encode('utf8'),bcrypt.gensalt()), True, True)
+#test = Usuario('Teste', 'teste@test.com',  bcrypt.hashpw(senha.encode('utf8'), bcrypt.gensalt()), False, False)
 
 
-db.session.add_all([gabriel, test])
+db.session.add_all([gabriel])
 
 db.session.commit()
 

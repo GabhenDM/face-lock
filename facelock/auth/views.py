@@ -2,7 +2,7 @@ from flask import Blueprint,render_template,redirect,url_for,flash
 from facelock import db
 from facelock.models import Usuario
 from facelock.auth.forms import LoginForm
-from flask_security import login_required, current_user, login_user, logout_user
+from flask_login import login_required, current_user, login_user, logout_user
 import bcrypt
 
 
@@ -14,6 +14,7 @@ def login_post():
     form = LoginForm()
     if form.validate_on_submit():
         usuarios_encontrados = Usuario.query.filter_by(email=form.email.data).all()
+        print(usuarios_encontrados)
         if usuarios_encontrados:
             usuario = usuarios_encontrados[0]
             senha = form.password.data.encode('utf-8')

@@ -9,7 +9,7 @@ import time
 app = Flask(__name__)
 FlaskJSON(app)
 
-arduino = serial.Serial('/dev/cu.usbmodem14201', 9600)
+arduino = serial.Serial('/dev/ttyACM1', 9600)
 
 
 def onOffFunction(command):

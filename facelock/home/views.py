@@ -3,7 +3,10 @@ from facelock import db
 from facelock.models import Usuario
 from flask_security import login_required, current_user
 from facelock.home.forms import RegisterForm, EditForm
+from scripts.encode import encode
+from werkzeug.utils import secure_filename
 import bcrypt
+import os
 
 
 home_blueprint = Blueprint('home',__name__,template_folder='templates/home')
@@ -27,15 +30,20 @@ def add():
         if form.validate_on_submit():
             usuario_encontrado = Usuario.query.filter_by(email=form.email.data).all()
             if not usuario_encontrado:
-                usuario =  Usuario(form.nome.data,form.email.data,bcrypt.hashpw(form.password.data.encode('utf8'), bcrypt.gensalt()), form.is_admin.data, form.active.data)
+                f = form.photo.data
+                filename = secure_filename(f.filename)
+                f.save(os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', '..','training_images',form.nome.data+'.jpg')))
+                usuario =  Usuario(form.nome.data,form.email.data,bcrypt.hashpw(form.password.data.encode('utf8'), bcrypt.gensalt()), form.is_admin.data, form.ativo.data)
                 db.session.add(usuario)
                 db.session.commit()
                 flash("Usuário Incluído com sucesso", 'success')
+                encode()
                 return redirect(url_for('home.listusers'))
             else:
                 flash('Email já cadastrado', 'danger')
         for fieldName, errorMessage in form.errors.items():
             for err in errorMessage:
+                print(fieldName)
                 flash(err, 'danger')
         return render_template('add.html', form=form)
 
@@ -55,7 +63,7 @@ def edit(id):
         usuario.nome = form.nome.data
         usuario.email = form.email.data
         usuario.is_admin = form.is_admin.data
-        usuario.active = form.active.data
+        usuario.ativo = form.ativo.data
         db.session.add(usuario)
         db.session.commit()
         flash("Usuário Alterado com sucesso", 'success')
@@ -68,6 +76,11 @@ def delete(id):
         usuario = Usuario.query.get(id)
         if usuario:
             db.session.delete(usuario)
+            try:
+                os.remove(os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', '..','training_images',usuario.nome+'.jpg')))
+            except:
+                flash("Nenhuma imagem associada ao usuario", "warning")
             db.session.commit()
             flash("Usuário removido com sucesso!", "danger")
+            encode()
             return redirect(url_for('home.listusers'))
