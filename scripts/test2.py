@@ -7,6 +7,7 @@ import pickle
 import serial 
 import threading
 import datetime
+import asyncio
 #arduino = serial.Serial('/dev/ttyACM0', 9600)
 
 
@@ -26,24 +27,27 @@ known_face_names = list(all_face_encodings.keys())
 known_face_encodings = np.array(list(all_face_encodings.values()))
 
 
+reconhecido = False
+
 face_locations = []
 face_encodings = []
 face_names = []
-
-
-def onOffFunction(command):
-	if command =="on":
-		print("Abrindo a Porta...")
-		time.sleep(1) 
-		arduino.write(b'H') 
-	elif command =="off":
-		print("Fechando a Porta...")
-		time.sleep(1) 
-		arduino.write(b'L')
-	elif command =="bye":
-		print("Adeus!...")
-		time.sleep(1) 
-		arduino.close()
+async def onOffFunction(command):
+    if command =="on":
+        print("Abrindo a Porta...")
+        await asyncio.sleep(10)
+        print("reseta")
+        global reconhecido
+        reconhecido = False
+        #arduino.write(b'H') 
+    elif command =="off":
+        print("Fechando a Porta...")
+        time.sleep(1) 
+        #arduino.write(b'L')
+    elif command =="bye":
+        print("Adeus!...")
+        time.sleep(1) 
+        #arduino.close()
 
 def salvar_snapshot(frame):
     img_name = "./snapshots/snapshot_{}.png".format(datetime.datetime.now())
@@ -70,10 +74,20 @@ def reconhecer(rgb_small_frame):
             known_face_encodings, face_encoding)
         best_match_index = np.argmin(face_distances)
         if matches[best_match_index]:
+            global reconhecido
+            reconhecido = True
+            print('1',reconhecido)
             name = known_face_names[best_match_index]
             print(name)
-            # x = threading.Thread(target=onOffFunction,args=('on',))
-            # x.start()
+            asyncio.create_task(onOffFunction('on'))
+            #task1 = asyncio.ensure_future(onOffFunction('on'))
+            #await asyncio.wait([task1])
+            #pool = Pool(processes=1)    
+            #res = pool.apply_async(onOffFunction, ('on',))     
+            #executor = ThreadPoolExecutor(max_workers=2)
+            #a = executor.submit(onOffFunction('on'))
+            #x = threading.Thread(target=onOffFunction,args=('on',))
+            #x.start()
             # TODO get request para API controller
             # r = requests.get(url = URL_CONTROLLER, params = {'command': "on"})
             # if(r.status_code == 200):
@@ -100,19 +114,22 @@ def reconhecer(rgb_small_frame):
         cv2.putText(frame, name, (left + 6, bottom - 6),
                     font, 1.0, (255, 255, 255), 1)
         
-        salvar_snapshot(frame)
+       # salvar_snapshot(frame)
     
-while True:
 
-    ret, frame = video_capture.read()
-    small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
+if __name__ == '__main__':
+    while True:
+        ret, frame = video_capture.read()
+        small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
 
-    rgb_small_frame = small_frame[:, :, ::-1]
+        rgb_small_frame = small_frame[:, :, ::-1]
 
-    face_locations = face_recognition.face_locations(rgb_small_frame)
-    cv2.imshow('Video', frame)
-    # Hit 'q' on the keyboard to quit!
-    if face_locations:
-        reconhecer(rgb_small_frame)
-    if cv2.waitKey(1) & 0xFF == ord('q'):
-        break
+        face_locations = face_recognition.face_locations(rgb_small_frame)
+        cv2.imshow('Video', frame)
+        print('2',reconhecido)
+        # Hit 'q' on the keyboard to quit!
+        if face_locations and not reconhecido:
+            reconhecer(rgb_small_frame)
+            
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
