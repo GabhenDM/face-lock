@@ -5,7 +5,7 @@ db.create_all()
 
 senha = u"scp1234"
 #salt = u"'Tesla470Tmnbsibifasng'"
-gabriel = Usuario('Gabriel', 'henriques.gabriel@outlook.com',  bcrypt.hashpw(senha.encode('utf8'),bcrypt.gensalt()), True, True)
+gabriel = Usuario('Gabriel', 'henriques.gabriel@outlook.com',  bcrypt.hashpw(senha.encode('utf8'),bcrypt.gensalt()), True,None, True)
 #test = Usuario('Teste', 'teste@test.com',  bcrypt.hashpw(senha.encode('utf8'), bcrypt.gensalt()), False, False)
 
 

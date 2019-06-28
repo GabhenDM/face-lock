@@ -9,9 +9,14 @@ import datetime
 from time import sleep
 import serial 
 import threading
+import sys
+
+sys.path.append(".")
 arduino = serial.Serial('/dev/ttyACM0', 9600)
 
 
+from facelock.models import Usuario
+from facelock import db
 
 URL_CONTROLLER = "http://127.0.0.1:5000/controller"
 
