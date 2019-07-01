@@ -12,7 +12,7 @@ import threading
 import sys
 
 sys.path.append(".")
-arduino = serial.Serial('/dev/ttyACM0', 9600)
+#arduino = serial.Serial('/dev/ttyACM0', 9600)
 
 
 from facelock.models import Usuario
@@ -28,8 +28,10 @@ all_face_encodings = {}
 # Load face encodings
 
 with open(os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..','encoded_files','dataset_faces.dat')), 'rb') as f:
-    all_face_encodings = pickle.load(f)
+   all_face_encodings = pickle.load(f)
 
+encodings = Usuario.query.with_entities(Usuario.encoding)
+print(encodings)
 # Grab the list of names and the list of encodings
 known_face_names = list(all_face_encodings.keys())
 known_face_encodings = np.array(list(all_face_encodings.values()))
@@ -56,15 +58,15 @@ def onOffFunction(command):
 	if command =="on":
 		print("Abrindo a Porta...")
 		time.sleep(1) 
-		arduino.write(b'H') 
+		#arduino.write(b'H') 
 	elif command =="off":
 		print("Fechando a Porta...")
 		time.sleep(1) 
-		arduino.write(b'L')
+		#arduino.write(b'L')
 	elif command =="bye":
 		print("Adeus!...")
 		time.sleep(1) 
-		arduino.close()
+		#arduino.close()
 
 # Funcao Reconhecimento Facial
 def reconhecimento():

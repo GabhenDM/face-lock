@@ -1,7 +1,7 @@
 from flask import Blueprint,render_template,redirect,url_for,flash, request
 from facelock import db
 from facelock.models import Usuario
-from flask_security import login_required, current_user
+from flask_login import login_required, current_user
 from facelock.home.forms import RegisterForm, EditForm
 from scripts.encode import encode
 from werkzeug.utils import secure_filename
