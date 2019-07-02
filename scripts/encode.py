@@ -1,3 +1,4 @@
+
 import face_recognition
 import pickle
 import os
@@ -5,12 +6,13 @@ import sys
 
 sys.path.append(".")
 
-
-from facelock.models import Usuario
 from facelock import db
+from facelock.models import Usuario
+
+
 def encode():
     all_face_encodings = {}
-   
+
     for file in os.listdir('./training_images'):
         print("[+] Encoding Face -  " + file[:-4])
         img = face_recognition.load_image_file('./training_images/'+file)
@@ -24,6 +26,7 @@ def encode():
                 db.session.commit()
     with open('./encoded_files/dataset_faces.dat', 'wb') as f:
         pickle.dump(all_face_encodings, f)
+
 
 if __name__ == '__main__':
     encode()

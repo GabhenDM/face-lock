@@ -4,12 +4,10 @@ import numpy as np
 import time
 import requests
 import pickle
-import serial 
+import serial
 import threading
 import datetime
-import asyncio
 #arduino = serial.Serial('/dev/ttyACM0', 9600)
-
 
 
 URL_CONTROLLER = "http://127.0.0.1:5000/"
@@ -32,27 +30,30 @@ reconhecido = False
 face_locations = []
 face_encodings = []
 face_names = []
-async def onOffFunction(command):
-    if command =="on":
+
+
+def onOffFunction(command):
+    if command == "on":
         print("Abrindo a Porta...")
-        await asyncio.sleep(10)
-        print("reseta")
+        time.sleep(60)
         global reconhecido
         reconhecido = False
-        #arduino.write(b'H') 
-    elif command =="off":
+        # arduino.write(b'H')
+    elif command == "off":
         print("Fechando a Porta...")
-        time.sleep(1) 
-        #arduino.write(b'L')
-    elif command =="bye":
+        time.sleep(1)
+        # arduino.write(b'L')
+    elif command == "bye":
         print("Adeus!...")
-        time.sleep(1) 
-        #arduino.close()
+        time.sleep(1)
+        # arduino.close()
+
 
 def salvar_snapshot(frame):
     img_name = "./snapshots/snapshot_{}.png".format(datetime.datetime.now())
     cv2.imwrite(img_name, frame)
     print("{} written!".format(img_name))
+
 
 def reconhecer(rgb_small_frame):
     face_encodings = face_recognition.face_encodings(
@@ -75,26 +76,12 @@ def reconhecer(rgb_small_frame):
         best_match_index = np.argmin(face_distances)
         if matches[best_match_index]:
             global reconhecido
+            x = threading.Thread(name="Controller Fechadura",
+                                 target=onOffFunction, args=('on',))
+            x.start()
             reconhecido = True
-            print('1',reconhecido)
             name = known_face_names[best_match_index]
-            print(name)
-            asyncio.create_task(onOffFunction('on'))
-            #task1 = asyncio.ensure_future(onOffFunction('on'))
-            #await asyncio.wait([task1])
-            #pool = Pool(processes=1)    
-            #res = pool.apply_async(onOffFunction, ('on',))     
-            #executor = ThreadPoolExecutor(max_workers=2)
-            #a = executor.submit(onOffFunction('on'))
-            #x = threading.Thread(target=onOffFunction,args=('on',))
-            #x.start()
-            # TODO get request para API controller
-            # r = requests.get(url = URL_CONTROLLER, params = {'command': "on"})
-            # if(r.status_code == 200):
-            #    return
         face_names.append(name)
-        
-
 
     # Display the results
     for (top, right, bottom, left), name in zip(face_locations, face_names):
@@ -113,9 +100,9 @@ def reconhecer(rgb_small_frame):
         font = cv2.FONT_HERSHEY_DUPLEX
         cv2.putText(frame, name, (left + 6, bottom - 6),
                     font, 1.0, (255, 255, 255), 1)
-        
+
        # salvar_snapshot(frame)
-    
+
 
 if __name__ == '__main__':
     while True:
@@ -126,10 +113,9 @@ if __name__ == '__main__':
 
         face_locations = face_recognition.face_locations(rgb_small_frame)
         cv2.imshow('Video', frame)
-        print('2',reconhecido)
         # Hit 'q' on the keyboard to quit!
         if face_locations and not reconhecido:
             reconhecer(rgb_small_frame)
-            
+
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
