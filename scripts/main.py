@@ -1,3 +1,5 @@
+
+
 import sys
 import threading
 import serial
@@ -17,8 +19,8 @@ from facelock import db
 #arduino = serial.Serial('/dev/ttyACM0', 9600)
 
 
-
 video_capture = cv2.VideoCapture(0)
+detector = cv2.CascadeClassifier("haarcascade_frontalface_default.xml")
 
 
 all_face_encodings = {}
@@ -44,6 +46,7 @@ known_face_encodings = np.array(list(all_face_encodings.values()))
 face_locations = []
 face_encodings = []
 face_names = []
+rects = []
 
 
 def onOffFunction(command):
@@ -72,9 +75,8 @@ def salvar_snapshot(frame):
     ja_tirou_foto = False
 
 
-def reconhecer(rgb_small_frame):
-    face_encodings = face_recognition.face_encodings(
-        rgb_small_frame, face_locations)
+def reconhecer(rgb, boxes):
+    face_encodings = face_recognition.face_encodings(rgb, boxes)
 
     face_names = []
     for face_encoding in face_encodings:
@@ -95,7 +97,7 @@ def reconhecer(rgb_small_frame):
         face_names.append(name)
 
     # Display de resultado
-    for (top, right, bottom, left), name in zip(face_locations, face_names):
+    for (top, right, bottom, left), name in zip(boxes, face_names):
         # Scale back up face locations since the frame we detected in was scaled to 1/4 size
         top *= 4
         right *= 4
@@ -111,24 +113,36 @@ def reconhecer(rgb_small_frame):
                     font, 1.0, (255, 255, 255), 1)
         global ja_tirou_foto
         if not ja_tirou_foto and not reconhecido:
-            ja_tirou_foto= True
+            ja_tirou_foto = True
             salvarSnap = threading.Thread(
-                    name="Salvar Snapshot", target=salvar_snapshot, args=(frame,))
+                name="Salvar Snapshot", target=salvar_snapshot, args=(frame,))
             salvarSnap.start()
 
 
 if __name__ == '__main__':
     while True:
-        ret, frame = video_capture.read()
-        small_frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
+        ret,frame = video_capture.read()
+        # grab the frame from the threaded video stream and resize it
+        # to 500px (to speedup processing)
+        frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
 
-        rgb_small_frame = small_frame[:, :, ::-1]
+        # convert the input frame from (1) BGR to grayscale (for face
+        # detection) and (2) from BGR to RGB (for face recognition)
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-        face_locations = face_recognition.face_locations(rgb_small_frame)
+        # detect faces in the grayscale frame
+        rects = detector.detectMultiScale(gray, scaleFactor=1.1,
+                                          minNeighbors=5, minSize=(30, 30))
+        boxes = [(y, x + w, y + h, x) for (x, y, w, h) in rects]
+        #face_locations = face_recognition.face_locations(rgb_small_frame)
         cv2.imshow('Video', frame)
+        #print(type(rects))
         # Hit 'q' on the keyboard to quit!
-        if face_locations and not reconhecido:
-            reconhecer(rgb_small_frame)
+        #if :
+        if type(rects) is not tuple and not reconhecido:
+            print("entrou")
+            reconhecer(rgb, boxes)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
