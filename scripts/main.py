@@ -12,11 +12,27 @@ import time
 import numpy as np
 import cv2
 import face_recognition
+import RPi.GPIO as GPIO
 sys.path.append(".")
 
 from facelock.models import Usuario
 from facelock import db
 #arduino = serial.Serial('/dev/ttyACM0', 9600)
+
+
+channel = 21
+
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(channel, GPIO.out)
+
+
+def relay_off():
+    GPIO.output(channel, GPIO.HIGH)
+
+
+def relay_on():
+    GPIO.output(channel, GPIO.LOW)
+
 
 
 video_capture = cv2.VideoCapture(0)
@@ -52,18 +68,24 @@ rects = []
 def onOffFunction(command):
     if command == "on":
         print("Abrindo a Porta...")
+        relay_on()
+        time.sleep(1)
+        relay_off()
         time.sleep(60)
         global reconhecido
         reconhecido = False
         # arduino.write(b'H')
+        
     elif command == "off":
         print("Fechando a Porta...")
         time.sleep(1)
         # arduino.write(b'L')
+        relay_off()
     elif command == "bye":
         print("Adeus!...")
         time.sleep(1)
         # arduino.close()
+        
 
 
 def salvar_snapshot(frame):
