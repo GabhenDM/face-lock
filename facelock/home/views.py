@@ -15,6 +15,8 @@ encodings = {}
 
 
 def cacheEncodings():
+    print(encodings)
+    encodings = {}
     usuarios = Usuario.query.all()
     for usuario in usuarios:
         encodings.update((usuario.nome, usuario.encoding))
