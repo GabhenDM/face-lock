@@ -2,7 +2,6 @@
 
 import sys
 import threading
-import serial
 from time import sleep
 import datetime
 import os
@@ -12,18 +11,27 @@ import time
 import numpy as np
 import cv2
 import face_recognition
-import RPi.GPIO as GPIO
+
+import os
+
+# Just to check for the existing of DEMO_MODE environment variable,
+# but you could also compare its value, pass it forward and so on
+DEV_MODE = os.environ.get("DEV_MODE", None)
+
+if DEV_MODE:
+    import FakeRPi.GPIO as GPIO
+else:
+    import RPi.GPIO as GPIO
 sys.path.append(".")
 
-from facelock.models import Usuario
-from facelock import db
-#arduino = serial.Serial('/dev/ttyACM0', 9600)
 
+from facelock import db
+from facelock.models import Usuario
 
 channel = 21
 
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(channel, GPIO.out)
+GPIO.setup(channel, GPIO.OUT)
 
 
 def relay_off():
@@ -32,7 +40,6 @@ def relay_off():
 
 def relay_on():
     GPIO.output(channel, GPIO.LOW)
-
 
 
 video_capture = cv2.VideoCapture(0)
@@ -71,21 +78,17 @@ def onOffFunction(command):
         relay_on()
         time.sleep(1)
         relay_off()
-        time.sleep(60)
+        time.sleep(15)
         global reconhecido
         reconhecido = False
-        # arduino.write(b'H')
-        
+
     elif command == "off":
         print("Fechando a Porta...")
         time.sleep(1)
-        # arduino.write(b'L')
         relay_off()
     elif command == "bye":
         print("Adeus!...")
         time.sleep(1)
-        # arduino.close()
-        
 
 
 def salvar_snapshot(frame):
@@ -113,6 +116,7 @@ def reconhecer(rgb, boxes):
             global reconhecido
             controller = threading.Thread(name="Controller Fechadura",
                                           target=onOffFunction, args=('on',))
+            print("[+] Reconhecido - ", known_face_names[best_match_index])
             controller.start()
             reconhecido = True
             name = known_face_names[best_match_index]
@@ -143,7 +147,7 @@ def reconhecer(rgb, boxes):
 
 if __name__ == '__main__':
     while True:
-        ret,frame = video_capture.read()
+        ret, frame = video_capture.read()
         # grab the frame from the threaded video stream and resize it
         # to 500px (to speedup processing)
         frame = cv2.resize(frame, (0, 0), fx=0.25, fy=0.25)
@@ -159,11 +163,10 @@ if __name__ == '__main__':
         boxes = [(y, x + w, y + h, x) for (x, y, w, h) in rects]
         #face_locations = face_recognition.face_locations(rgb_small_frame)
         cv2.imshow('Video', frame)
-        #print(type(rects))
+        # print(type(rects))
         # Hit 'q' on the keyboard to quit!
-        #if :
+        # if :
         if type(rects) is not tuple and not reconhecido:
-            print("entrou")
             reconhecer(rgb, boxes)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):

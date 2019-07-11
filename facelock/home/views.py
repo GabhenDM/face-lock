@@ -14,12 +14,11 @@ home_blueprint = Blueprint('home', __name__, template_folder='templates/home')
 encodings = {}
 
 
-def cacheEncodings():
-    print(encodings)
-    encodings = {}
-    usuarios = Usuario.query.all()
-    for usuario in usuarios:
-        encodings.update((usuario.nome, usuario.encoding))
+#def cacheEncodings():
+ ##  encodings = {}
+   # usuarios = Usuario.query.all()
+    #for usuario in usuarios:
+     #   encodings.update((usuario.nome, usuario.encoding))
 
 
 @home_blueprint.route("/list")
@@ -50,7 +49,7 @@ def add():
                 db.session.commit()
                 flash("Usuário Incluído com sucesso", 'success')
                 encode()
-                cacheEncodings()
+                #cacheEncodings()
                 return redirect(url_for('home.listusers'))
             else:
                 flash('Email já cadastrado', 'danger')
