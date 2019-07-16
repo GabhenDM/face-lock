@@ -14,3 +14,4 @@ encoded_files/dataset_faces.dat
 venv
 *.sqlite
 logs/*.log
+!logs/.gitkeep
