@@ -11,6 +11,8 @@ import time
 import numpy as np
 import cv2
 import face_recognition
+import logging
+from logging.handlers import TimedRotatingFileHandler
 
 import os
 
@@ -24,9 +26,25 @@ else:
     import RPi.GPIO as GPIO
 sys.path.append(".")
 
-
 from facelock import db
 from facelock.models import Usuario
+
+
+# Create a custom logger
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+# Create handlers
+c_handler = logging.StreamHandler()
+c_handler.setLevel(logging.INFO)
+logname = "./logs/recog.log"
+f_handler = TimedRotatingFileHandler(logname, when="midnight", interval=1)
+f_handler.setLevel(logging.INFO)
+f_handler.suffix = "%Y%m%d"
+f_format = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+f_handler.setFormatter(f_format)
+c_handler.setFormatter(f_format)
+logger.addHandler(f_handler)
+logger.addHandler(c_handler)
 
 channel = 21
 
@@ -94,7 +112,7 @@ def onOffFunction(command):
 def salvar_snapshot(frame):
     img_name = "./snapshots/snapshot_{}.png".format(datetime.datetime.now())
     cv2.imwrite(img_name, frame)
-    print("{} written!".format(img_name))
+    logger.warning("{} written!".format(img_name))
     time.sleep(60)
     global ja_tirou_foto
     ja_tirou_foto = False
@@ -116,7 +134,7 @@ def reconhecer(rgb, boxes):
             global reconhecido
             controller = threading.Thread(name="Controller Fechadura",
                                           target=onOffFunction, args=('on',))
-            print("[+] Reconhecido - ", known_face_names[best_match_index])
+            logger.info("[+] Reconhecido - %s", known_face_names[best_match_index])
             controller.start()
             reconhecido = True
             name = known_face_names[best_match_index]
