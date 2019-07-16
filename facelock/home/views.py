@@ -1,4 +1,4 @@
-from flask import Blueprint,render_template,redirect,url_for,flash, request
+from flask import Blueprint, render_template, redirect, url_for, flash, request
 from facelock import db
 from facelock.models import Usuario
 from flask_login import login_required, current_user
@@ -9,15 +9,16 @@ import bcrypt
 import os
 
 
-home_blueprint = Blueprint('home',__name__,template_folder='templates/home')
+home_blueprint = Blueprint('home', __name__, template_folder='templates/home')
 
 encodings = {}
 
-def cacheEncodings():
-    usuarios = Usuario.query.all()
-    for usuario in usuarios:
-        encodings.update((usuario.nome,usuario.encoding))
 
+#def cacheEncodings():
+ ##  encodings = {}
+   # usuarios = Usuario.query.all()
+    #for usuario in usuarios:
+     #   encodings.update((usuario.nome, usuario.encoding))
 
 
 @home_blueprint.route("/list")
@@ -27,7 +28,7 @@ def listusers():
     return render_template('list.html', usuarios=usuarios)
 
 
-@home_blueprint.route("/new",methods=['GET','POST'])
+@home_blueprint.route("/new", methods=['GET', 'POST'])
 @login_required
 def add():
     form = RegisterForm(active=True)
@@ -35,17 +36,20 @@ def add():
         return render_template('add.html', form=form)
     elif request.method == "POST":
         if form.validate_on_submit():
-            usuario_encontrado = Usuario.query.filter_by(email=form.email.data).all()
+            usuario_encontrado = Usuario.query.filter_by(
+                email=form.email.data).all()
             if not usuario_encontrado:
                 f = form.photo.data
                 filename = secure_filename(f.filename)
-                f.save(os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', '..','training_images',form.nome.data+'.jpg')))
-                usuario =  Usuario(form.nome.data,form.email.data,bcrypt.hashpw(form.password.data.encode('utf8'), bcrypt.gensalt()), form.is_admin.data, form.ativo.data)
+                f.save(os.path.abspath(os.path.join(os.path.dirname(
+                    __file__), '..', '..', 'training_images', form.nome.data+'.jpg')))
+                usuario = Usuario(form.nome.data, form.email.data, bcrypt.hashpw(form.password.data.encode(
+                    'utf8'), bcrypt.gensalt()), form.is_admin.data, None, form.ativo.data)
                 db.session.add(usuario)
                 db.session.commit()
                 flash("Usuário Incluído com sucesso", 'success')
                 encode()
-                cacheEncodings()
+                #cacheEncodings()
                 return redirect(url_for('home.listusers'))
             else:
                 flash('Email já cadastrado', 'danger')
@@ -56,7 +60,7 @@ def add():
         return render_template('add.html', form=form)
 
 
-@home_blueprint.route("/edit/<string:id>", methods=['GET','POST'])
+@home_blueprint.route("/edit/<string:id>", methods=['GET', 'POST'])
 @login_required
 def edit(id):
     if request.method == 'GET':
@@ -77,6 +81,7 @@ def edit(id):
         flash("Usuário Alterado com sucesso", 'success')
         return redirect(url_for('home.listusers'))
 
+
 @home_blueprint.route("/delete/<string:id>", methods=['GET'])
 @login_required
 def delete(id):
@@ -85,7 +90,8 @@ def delete(id):
         if usuario:
             db.session.delete(usuario)
             try:
-                os.remove(os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', '..','training_images',usuario.nome+'.jpg')))
+                os.remove(os.path.abspath(os.path.join(os.path.dirname(
+                    __file__), '..', '..', 'training_images', usuario.nome+'.jpg')))
             except:
                 flash("Nenhuma imagem associada ao usuario", "warning")
             db.session.commit()
