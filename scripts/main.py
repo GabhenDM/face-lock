@@ -1,7 +1,6 @@
 
 
-from facelock.models import Usuario
-from facelock import db
+
 import sys
 import threading
 from time import sleep
@@ -27,6 +26,8 @@ if DEV_MODE:
 else:
     import RPi.GPIO as GPIO
 sys.path.append(".")
+from facelock.models import Usuario
+from facelock import db
 
 
 # Create a custom logger
@@ -123,7 +124,7 @@ def reconhecer(rgb, boxes):
     face_names = []
     for face_encoding in face_encodings:
         matches = face_recognition.compare_faces(
-            known_face_encodings, face_encoding)
+            known_face_encodings, face_encoding, tolerance=0.3)
         name = "Unknown"
 
         face_distances = face_recognition.face_distance(
@@ -185,7 +186,7 @@ if __name__ == '__main__':
         # Hit 'q' on the keyboard to quit!
         # if :
         if type(rects) is not tuple and not reconhecido:
-            reconhecer(rgb, face_locations)
+            reconhecer(rgb, boxes)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
