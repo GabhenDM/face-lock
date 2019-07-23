@@ -2,11 +2,14 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from facelock import db
 from facelock.models import Usuario
 from flask_login import login_required, current_user
-from facelock.home.forms import RegisterForm, EditForm
+from facelock.home.forms import RegisterForm, EditForm, PortaForm
 from scripts.encode import encode
+from scripts.main import relay_on, relay_off
 from werkzeug.utils import secure_filename
 import bcrypt
 import os
+import cv2
+import time
 
 
 home_blueprint = Blueprint('home', __name__, template_folder='templates/home')
@@ -14,11 +17,11 @@ home_blueprint = Blueprint('home', __name__, template_folder='templates/home')
 encodings = {}
 
 
-#def cacheEncodings():
- ##  encodings = {}
-   # usuarios = Usuario.query.all()
-    #for usuario in usuarios:
-     #   encodings.update((usuario.nome, usuario.encoding))
+# def cacheEncodings():
+# encodings = {}
+# usuarios = Usuario.query.all()
+# for usuario in usuarios:
+#   encodings.update((usuario.nome, usuario.encoding))
 
 
 @home_blueprint.route("/list")
@@ -49,7 +52,7 @@ def add():
                 db.session.commit()
                 flash("Usuário Incluído com sucesso", 'success')
                 encode()
-                #cacheEncodings()
+                # cacheEncodings()
                 return redirect(url_for('home.listusers'))
             else:
                 flash('Email já cadastrado', 'danger')
@@ -98,3 +101,18 @@ def delete(id):
             flash("Usuário removido com sucesso!", "danger")
             encode()
             return redirect(url_for('home.listusers'))
+
+
+@home_blueprint.route("/feed", methods=['GET', 'POST'])
+@login_required
+def feed():
+    if request.method == 'GET':
+        form = PortaForm()
+        return render_template('feed.html', form=form)
+    elif request.method == 'POST':
+        form = PortaForm()
+        relay_on()
+        time.sleep(1)
+        relay_off()
+        flash("Abrindo Porta..", 'success')
+        return redirect(url_for('home.feed'))
