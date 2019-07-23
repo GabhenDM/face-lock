@@ -1,5 +1,7 @@
 
 
+from facelock.models import Usuario
+from facelock import db
 import sys
 import threading
 from time import sleep
@@ -25,9 +27,6 @@ if DEV_MODE:
 else:
     import RPi.GPIO as GPIO
 sys.path.append(".")
-
-from facelock import db
-from facelock.models import Usuario
 
 
 # Create a custom logger
@@ -134,7 +133,8 @@ def reconhecer(rgb, boxes):
             global reconhecido
             controller = threading.Thread(name="Controller Fechadura",
                                           target=onOffFunction, args=('on',))
-            logger.info("[+] Reconhecido - %s", known_face_names[best_match_index])
+            logger.info("[+] Reconhecido - %s",
+                        known_face_names[best_match_index])
             controller.start()
             reconhecido = True
             name = known_face_names[best_match_index]
@@ -179,13 +179,13 @@ if __name__ == '__main__':
         rects = detector.detectMultiScale(gray, scaleFactor=1.1,
                                           minNeighbors=5, minSize=(30, 30))
         boxes = [(y, x + w, y + h, x) for (x, y, w, h) in rects]
-        #face_locations = face_recognition.face_locations(rgb_small_frame)
+        #face_locations = face_recognition.face_locations(rgb_small_frame, model="cnn")
         cv2.imshow('Video', frame)
         # print(type(rects))
         # Hit 'q' on the keyboard to quit!
         # if :
         if type(rects) is not tuple and not reconhecido:
-            reconhecer(rgb, boxes)
+            reconhecer(rgb, face_locations)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break

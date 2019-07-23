@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField,SubmitField,validators, PasswordField, BooleanField
+from wtforms import StringField, SubmitField, validators, PasswordField, BooleanField
 from flask_wtf.file import FileField, FileRequired
+
 
 class RegisterForm(FlaskForm):
     nome = StringField('Nome', validators=[validators.DataRequired()])
@@ -25,3 +26,6 @@ class EditForm(FlaskForm):
     ativo = BooleanField("Acesso Ativo?")
     submit = SubmitField('Editar')
 
+
+class PortaForm(FlaskForm):
+    submit = SubmitField("Abrir Porta")
