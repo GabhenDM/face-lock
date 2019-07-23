@@ -164,6 +164,7 @@ def reconhecer(rgb, boxes):
 
 
 if __name__ == '__main__':
+    relay_off()
     while True:
         ret, frame = video_capture.read()
         # grab the frame from the threaded video stream and resize it

@@ -13,5 +13,7 @@ encoded_files/dataset_faces.dat
 .DS_Store
 venv
 *.sqlite
+logs/*.log.*
 logs/*.log
 !logs/.gitkeep
+facelock/*.db
